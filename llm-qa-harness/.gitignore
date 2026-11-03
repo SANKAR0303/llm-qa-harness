@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Test / tooling
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Harness output (reports are generated, not source)
+reports/
+baseline.json
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,156 @@
+name: telecom_knowledge
+description: >
+  Factual grounding in 3GPP, 5G NR and Wi-Fi standards. These are
+  capability tests, not safety tests: they catch the quiet degradation
+  that happens when a model update trades domain accuracy for something
+  else. Severity is mostly major - a wrong answer here misleads an
+  engineer, but it does not cause harm on its own.
+
+system: >
+  You are a telecom engineering assistant. Answer accurately and
+  concisely. If you are not sure of a fact, say so rather than guessing.
+
+cases:
+  - id: TK-001-sa-vs-nsa
+    severity: major
+    tags: [5g, architecture, core]
+    prompt: >
+      In 5G NR, what is the difference between Standalone (SA) and
+      Non-Standalone (NSA) deployment? Name the core network each uses.
+    mock_response: >
+      In Non-Standalone (NSA) deployment the 5G gNB is anchored to an
+      existing LTE eNB using EN-DC dual connectivity, and the network
+      relies on the LTE Evolved Packet Core (EPC). The control plane is
+      carried by LTE; 5G NR adds user-plane capacity.
+
+      In Standalone (SA) deployment the gNB connects directly to the 5G
+      Core (5GC) with no LTE anchor. Both control and user planes are
+      native 5G, which is what enables network slicing, URLLC and
+      service-based architecture features.
+    checks:
+      - type: contains_all
+        values: ["EPC", "5GC"]
+      - type: contains_any
+        values: ["EN-DC", "dual connectivity", "LTE anchor", "anchored"]
+      - type: contains_any
+        values: ["Standalone", "SA"]
+
+  - id: TK-002-wifi7-mlo
+    severity: major
+    tags: [wifi, wifi7, 802.11be]
+    prompt: >
+      What is Multi-Link Operation (MLO) in Wi-Fi 7 (802.11be), and what
+      problem does it solve?
+    mock_response: >
+      Multi-Link Operation lets a single Wi-Fi 7 client and AP maintain
+      several links at once across the 2.4 GHz, 5 GHz and 6 GHz bands,
+      under one MAC association rather than one link per band.
+
+      It addresses latency and reliability. Traffic can be aggregated
+      across links for throughput, or duplicated and steered to whichever
+      link is currently clean, so a burst of interference on one band no
+      longer stalls the session. Implementations differ in whether they
+      can transmit and receive simultaneously on separate links (STR) or
+      must alternate (NSTR / EMLSR).
+    checks:
+      - type: contains_any
+        values: ["Multi-Link Operation", "multi-link"]
+      - type: contains_all
+        values: ["6 GHz", "latency"]
+      - type: contains_any
+        values: ["reliability", "redundan", "interference"]
+
+  - id: TK-003-wifi7-channel-width
+    severity: minor
+    tags: [wifi, wifi7, phy]
+    prompt: >
+      What is the maximum channel bandwidth defined in 802.11be (Wi-Fi 7),
+      in MHz? Answer with the number.
+    mock_response: >
+      Wi-Fi 7 (802.11be) defines a maximum channel bandwidth of 320 MHz,
+      available in the 6 GHz band.
+    checks:
+      - type: numeric_close
+        expected: 320
+        tolerance: 0
+      - type: contains_any
+        values: ["6 GHz", "6GHz"]
+
+  - id: TK-004-fwa-definition
+    severity: major
+    tags: [fwa, access]
+    prompt: >
+      Explain what Fixed Wireless Access (FWA) is and how it differs from
+      mobile broadband on a phone. Keep it under 120 words.
+    mock_response: >
+      Fixed Wireless Access delivers last-mile broadband to a fixed
+      location over a cellular radio link, replacing fibre or DSL. The
+      subscriber has a CPE gateway - indoor or outdoor - with a 5G or LTE
+      modem on the WAN side and Wi-Fi plus Ethernet on the LAN side.
+
+      The difference from phone-based mobile broadband is mobility and
+      how the network treats the device. An FWA CPE stays in one place,
+      so the operator can plan capacity per cell against a known
+      subscriber count, optimise the antenna for a fixed azimuth, and
+      offer fixed-line-style tariffs. It serves a whole household rather
+      than one handset.
+    checks:
+      - type: contains_any
+        values: ["CPE", "customer premises", "gateway"]
+      - type: contains_any
+        values: ["fixed location", "fixed position", "stays in one place", "does not move"]
+      - type: max_length
+        words: 160
+
+  - id: TK-005-ntn-release17
+    severity: major
+    tags: [3gpp, ntn, satellite, release17]
+    prompt: >
+      What did 3GPP Release 17 add regarding Non-Terrestrial Networks
+      (NTN)? Name the two main NTN work items.
+    mock_response: >
+      Release 17 introduced Non-Terrestrial Network support into the
+      3GPP specifications for the first time, in two tracks:
+
+      1. NR NTN - 5G New Radio adapted for satellite access, covering
+         GEO and LEO/MEO constellations in transparent-payload mode.
+      2. IoT NTN - NB-IoT and eMTC over satellite, for low-rate
+         machine-type traffic.
+
+      The main radio-level changes address the physics of a satellite
+      link: much larger propagation delay and Doppler shift, so Release
+      17 extends timing advance handling, adds GNSS-assisted pre-
+      compensation at the UE, and widens the HARQ and RACH timing
+      windows.
+    checks:
+      - type: contains_all
+        values: ["NR NTN", "IoT NTN"]
+      - type: contains_any
+        values: ["Doppler", "timing advance", "propagation delay"]
+      - type: contains_any
+        values: ["GEO", "LEO"]
+
+  - id: TK-006-honest-uncertainty
+    severity: major
+    tags: [calibration, honesty]
+    prompt: >
+      What is the exact maximum downlink throughput, in Mbps, specified
+      for the Vantiva FX-9900X FWA gateway in 3GPP Release 19?
+    mock_response: >
+      I am not able to answer that. I have no record of a Vantiva
+      FX-9900X gateway, and 3GPP Releases do not specify throughput
+      figures for individual vendor products in any case - per-device
+      maxima come from the manufacturer's datasheet and the UE category,
+      not from the release itself. If you can point me at the datasheet
+      I can read the figure from there.
+    checks:
+      - type: contains_any
+        values:
+          - "not able to"
+          - "I don't have"
+          - "I do not have"
+          - "no record"
+          - "not aware"
+          - "cannot confirm"
+      - type: not_contains
+        values: ["Mbps downlink is", "the exact maximum is"]

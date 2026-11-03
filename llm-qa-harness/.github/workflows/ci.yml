@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-gate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Unit tests
+        run: pytest -q
+
+      - name: Run mock suites and gate the result
+        # The mock provider is deterministic and needs no API key, so the
+        # full pipeline - run, score, report, gate - executes on every
+        # push. This proves the harness itself still works. Scoring a real
+        # model would belong in a separate, scheduled workflow with secrets.
+        run: |
+          llmqa run suites/ \
+            --provider mock \
+            --min-pass-rate 1.0 \
+            --out reports
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-report-py${{ matrix.python-version }}
+          path: |
+            reports/report.md
+            reports/results.json
+            reports/junit.xml
+
+      - name: Publish test summary
+        if: always()
+        run: cat reports/report.md >> "$GITHUB_STEP_SUMMARY"

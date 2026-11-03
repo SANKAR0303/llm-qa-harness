@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-qa-harness"
+version = "0.1.0"
+description = "Regression testing and release gating for LLM applications."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Sankareswaran M" }]
+keywords = ["llm", "evaluation", "testing", "ai-safety", "regression", "ci"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = ["PyYAML>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[project.scripts]
+llmqa = "llmqa.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/SANKAR0303/llm-qa-harness"
+Repository = "https://github.com/SANKAR0303/llm-qa-harness"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
